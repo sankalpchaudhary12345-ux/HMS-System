@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Hospital Management System</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar" aria-label="Primary">
+        <div class="brand">
+          <div class="brand-mark">HMS</div>
+          <div>
+            <p class="eyebrow muted">Hospital Suite</p>
+            <strong>Command Center</strong>
+          </div>
+        </div>
+        <nav class="menu">
+          <button type="button" class="menu-link active" data-panel="dashboard">
+            <span>🏠</span>
+            <span>Dashboard</span>
+          </button>
+          <button type="button" class="menu-link" data-panel="doctors">
+            <span>👩‍⚕️</span>
+            <span>Doctors</span>
+          </button>
+          <button type="button" class="menu-link" data-panel="patients">
+            <span>🧑‍🤝‍🧑</span>
+            <span>Patients</span>
+          </button>
+          <button type="button" class="menu-link" data-panel="appointments">
+            <span>📅</span>
+            <span>Appointments</span>
+          </button>
+          <button type="button" class="menu-link" data-panel="patient-portal">
+            <span>🩺</span>
+            <span>Patient portal</span>
+          </button>
+          <button type="button" class="menu-link" data-panel="doctor-portal">
+            <span>📋</span>
+            <span>Doctor workspace</span>
+          </button>
+        </nav>
+        <div class="sidebar-card">
+          <p class="eyebrow muted">Storage</p>
+          <p>All data is saved in this browser via localStorage. It survives refreshes and offline sessions.</p>
+          <button class="btn ghost" type="button" id="clearStorageBtn">Reset demo data</button>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow muted">Hospital Management System</p>
+            <h1>Modern HMS with Local Storage</h1>
+            <p class="muted">
+              Add doctors, patients, and appointments. Everything stays in sync and persists automatically.
+            </p>
+          </div>
+          <div class="toolbar">
+            <button class="btn ghost" type="button" data-shortcut="patients">+ Quick patient</button>
+            <button class="btn primary" type="button" data-shortcut="appointments">Schedule visit</button>
+          </div>
+        </header>
+
+        <!-- Dashboard -->
+        <section id="panel-dashboard" class="panel active" aria-labelledby="panel-dashboard-label">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow muted" id="panel-dashboard-label">Command center</p>
+              <h2>Hospital overview</h2>
+            </div>
+            <div class="cluster">
+              <span class="pill accent" id="lastSavedPill">Synced</span>
+            </div>
+          </div>
+
+          <div class="kpi-grid">
+            <article class="kpi">
+              <p class="eyebrow muted">Doctors</p>
+              <p class="kpi-value" id="totalDoctors">0</p>
+              <p class="muted small">Active specialists</p>
+            </article>
+            <article class="kpi">
+              <p class="eyebrow muted">Patients</p>
+              <p class="kpi-value" id="totalPatients">0</p>
+              <p class="muted small">Registered this system</p>
+            </article>
+            <article class="kpi">
+              <p class="eyebrow muted">Appointments</p>
+              <p class="kpi-value" id="totalAppointments">0</p>
+              <p class="muted small">Upcoming + pending</p>
+            </article>
+          </div>
+
+          <div class="card-grid two">
+            <article class="card">
+              <div class="card-head">
+                <div>
+                  <p class="eyebrow muted">Today to next 7 days</p>
+                  <h3>Upcoming appointments</h3>
+                </div>
+                <button type="button" class="btn ghost" data-panel-jump="appointments">View all</button>
+              </div>
+              <ul class="timeline" id="upcomingAppointments"></ul>
+            </article>
+            <article class="card">
+              <div class="card-head">
+                <div>
+                  <p class="eyebrow muted">Doctor notifications</p>
+                  <h3>New bookings</h3>
+                </div>
+              </div>
+              <ul class="timeline" id="doctorNotifications"></ul>
+            </article>
+          </div>
+
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow muted">Patients needing action</p>
+                <h3>Pending follow-ups</h3>
+              </div>
+            </div>
+            <ul class="list" id="pendingPatientsList"></ul>
+          </article>
+        </section>
+
+        <!-- Doctors -->
+        <section id="panel-doctors" class="panel" aria-labelledby="panel-doctors-label">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow muted" id="panel-doctors-label">Doctor management</p>
+              <h2>Specialists & schedules</h2>
+            </div>
+          </div>
+          <div class="card">
+            <form id="doctorForm" class="form-grid" autocomplete="off">
+              <input type="hidden" id="doctorId" />
+              <label>
+                Doctor name
+                <input type="text" id="doctorName" required />
+              </label>
+              <label>
+                Specialization
+                <input type="text" id="doctorSpecialization" required />
+              </label>
+              <label>
+                Experience (years)
+                <input type="number" min="0" id="doctorExperience" required />
+              </label>
+<label>
+  Availability
+  <div style="display: flex; gap: 8px;">
+    <select id="doctorDays" required>
+      <option value="" disabled selected>Select days</option>
+      <option value="Mon-Fri">Mon-Fri</option>
+      <option value="Tue-Sat">Tue-Sat</option>
+      <option value="Mon,Wed,Fri">Mon,Wed,Fri</option>
+      <option value="Mon-Sat">Mon-Sat</option>
+      <option value="Sat-Sun">Sat-Sun</option>
+      <option value="Custom">Custom</option>
+    </select>
+    <select id="doctorTimeSlot" required>
+      <option value="" disabled selected>Select time</option>
+      <option value="09:00-13:00">09:00-13:00</option>
+      <option value="11:00-17:00">11:00-17:00</option>
+      <option value="15:00-20:00">15:00-20:00</option>
+      <option value="17:00-21:00">17:00-21:00</option>
+      <option value="Custom">Custom</option>
+    </select>
+  </div>
+</label>
+              <label>
+                Consultation fee (₹)
+                <input type="number" min="0" id="doctorFee" required />
+              </label>
+              <label>
+                Contact number
+                <input type="tel" id="doctorPhone" required />
+              </label>
+              <label>
+                Email
+                <input type="email" id="doctorEmail" required />
+              </label>
+              <label class="full">
+                Bio / Notes
+                <textarea id="doctorBio" rows="2" placeholder="Short intro or speciality highlights"></textarea>
+              </label>
+              <div class="form-actions full">
+                <button class="btn primary" type="submit" id="doctorFormSubmit">Save doctor</button>
+                <button class="btn ghost" type="button" data-clear-form="doctor">Cancel</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card table-card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow muted">Roster</p>
+                <h3>Doctor list</h3>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Specialization</th>
+                    <th>Availability</th>
+                    <th>Fee</th>
+                    <th>Contact</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="doctorsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Patients -->
+        <section id="panel-patients" class="panel" aria-labelledby="panel-patients-label">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow muted" id="panel-patients-label">Patient registry</p>
+              <h2>Medical records & intake</h2>
+            </div>
+          </div>
+          <div class="card">
+            <form id="patientForm" class="form-grid" autocomplete="off">
+              <input type="hidden" id="patientId" />
+              <label>
+                Patient name
+                <input type="text" id="patientName" required />
+              </label>
+              <label>
+                Age
+                <input type="number" id="patientAge" min="0" required />
+              </label>
+              <label>
+                Gender
+                <select id="patientGender" required>
+                  <option value="" disabled selected>Select gender</option>
+                  <option value="Female">Female</option>
+                  <option value="Male">Male</option>
+                  <option value="Non-binary">Non-binary</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+              </label>
+              <label>
+                Contact number
+                <input type="tel" id="patientPhone" required />
+              </label>
+              <label>
+                Email
+                <input type="email" id="patientEmail" />
+              </label>
+              <label>
+                Primary doctor
+                <select id="patientPrimaryDoctor">
+                  <option value="">No doctor assigned yet</option>
+                </select>
+              </label>
+              <label>
+                Medical issue
+                <input type="text" id="patientIssue" placeholder="Reason / diagnosis" required />
+              </label>
+              <label>
+                Last visit
+                <input type="date" id="patientLastVisit" />
+              </label>
+              <label class="full">
+                Notes / Follow-up plan
+                <textarea id="patientNotes" rows="2" placeholder="Treatment plan, lab reminders, etc."></textarea>
+              </label>
+              <div class="form-actions full">
+                <button class="btn primary" type="submit" id="patientFormSubmit">Save patient</button>
+                <button class="btn ghost" type="button" data-clear-form="patient">Cancel</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card table-card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow muted">All patients</p>
+                <h3>Medical records</h3>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Issue</th>
+                    <th>Doctor</th>
+                    <th>Contact</th>
+                    <th>Last visit</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="patientsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Appointments -->
+        <section id="panel-appointments" class="panel" aria-labelledby="panel-appointments-label">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow muted" id="panel-appointments-label">Scheduler</p>
+              <h2>Appointments & follow-ups</h2>
+            </div>
+          </div>
+          <div class="card">
+            <form id="appointmentForm" class="form-grid" autocomplete="off">
+              <input type="hidden" id="appointmentId" />
+              <label>
+                Patient
+                <select id="appointmentPatient" required>
+                  <option value="" disabled selected>Select patient</option>
+                </select>
+              </label>
+              <label>
+                Doctor
+                <select id="appointmentDoctor" required>
+                  <option value="" disabled selected>Select doctor</option>
+                </select>
+              </label>
+              <label>
+                Date
+                <input type="date" id="appointmentDate" required />
+              </label>
+              <label>
+                Time
+                <input type="time" id="appointmentTime" required />
+              </label>
+              <label>
+                Type
+                <select id="appointmentType" required>
+                  <option value="Consultation">Consultation</option>
+                  <option value="Follow-up">Follow-up</option>
+                  <option value="Procedure">Procedure</option>
+                </select>
+              </label>
+              <label>
+                Status
+                <select id="appointmentStatus">
+                  <option value="Confirmed">Confirmed</option>
+                  <option value="Pending Assignment">Pending Assignment</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </label>
+              <label class="full">
+                Notes for doctor
+                <textarea id="appointmentNotes" rows="2" placeholder="Symptoms, instructions, or preparation"></textarea>
+              </label>
+              <div class="form-actions full">
+                <button class="btn primary" type="submit" id="appointmentFormSubmit">Schedule appointment</button>
+                <button class="btn ghost" type="button" data-clear-form="appointment">Reset</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card table-card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow muted">Live queue</p>
+                <h3>Appointments board</h3>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Date & time</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="appointmentsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow muted">Heads up</p>
+                <h3>Doctor alerts</h3>
+              </div>
+            </div>
+            <ul class="list" id="appointmentAlerts"></ul>
+          </article>
+        </section>
+
+        <!-- Patient portal -->
+        <section id="panel-patient-portal" class="panel" aria-labelledby="panel-patient-portal-label">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow muted" id="panel-patient-portal-label">Patient facing</p>
+              <h2>Patient dashboard preview</h2>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow muted">Choose your specialist</p>
+                <h3>Available doctors</h3>
+              </div>
+              <div class="search">
+                <input type="search" id="patientDoctorSearch" placeholder="Search specialization or doctor" />
+              </div>
+            </div>
+            <div class="doctor-grid" id="patientDoctorCards"></div>
+          </div>
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <p class="eyebrow muted">Self-service</p>
+                <h3>Booked visits</h3>
+              </div>
+            </div>
+            <ul class="timeline" id="patientAppointmentsList"></ul>
+          </article>
+        </section>
+
+        <!-- Doctor portal -->
+        <section id="panel-doctor-portal" class="panel" aria-labelledby="panel-doctor-portal-label">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow muted" id="panel-doctor-portal-label">Clinical workspace</p>
+              <h2>Doctors view</h2>
+            </div>
+          </div>
+          <div class="doctor-workspace" id="doctorWorkspace"></div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="appToast" role="status" aria-live="polite"></div>
+    <script src="script.js"></script>
+  </body>
+</html>
